@@ -115,7 +115,23 @@ new Vue({
             ]
         };
     },
+    created() {
+        this.loadTasks();
+    },
     methods: {
+        saveTasks() {
+            localStorage.setItem('taskBoardData', JSON.stringify(this.columns));
+        },
+        loadTasks() {
+            const savedData = localStorage.getItem('taskBoardData');
+            if (savedData) {
+                this.columns = JSON.parse(savedData);
+            }
+        },
+        clearStorage() {
+            localStorage.removeItem('taskBoardData');
+            location.reload();
+        },
         moveTask(task, nextColumnIndex) {
             const currentColumn = this.columns.find(column => column.tasks.includes(task));
             if (currentColumn) {
@@ -127,9 +143,10 @@ new Vue({
             if (nextColumnIndex === 3) {
                 this.onTaskCompleted(task);
             }
+            this.saveTasks();
         },
         moveTaskBack(task, prevColumnIndex) {
-            let explanation = prompt('Click the reason for card issue')
+            let explanation = prompt('Click the reason for card issue');
             if (explanation) {
                 task.explanation = explanation;
             }
@@ -137,36 +154,40 @@ new Vue({
             if (currentColumn) {
                 currentColumn.tasks = currentColumn.tasks.filter(t => t !== task);
             }
-
             if (prevColumnIndex >= 0) {
                 this.columns[prevColumnIndex].tasks.push(task);
             }
-            return explanation;
+            this.saveTasks();
         },
         onTaskCompleted(task) {
             task.isCompleted = true;
             const deadlineDate = new Date(task.deadline);
             const now = new Date();
             task.completedOnTime = now <= deadlineDate;
+            this.saveTasks();
         },
         removeTask(task, columnIndex) {
             this.columns[columnIndex].tasks = this.columns[columnIndex].tasks.filter(t => t !== task);
+            this.saveTasks();
         }
     },
     template: `
-    <div class="board">
-      <column
-        v-for="(column, index) in columns"
-        :key="index"
-        :columnTitle="column.title"
-        :isButton="column.isButton"
-        :tasks="column.tasks"
-        :columnIndex="index"
-        :columns="columns"
-        :moveTask="moveTask"
-        :moveTaskBack="moveTaskBack"
-        :removeTask="removeTask"
-      />
+    <div>
+      <div class="board">
+        <column
+          v-for="(column, index) in columns"
+          :key="index"
+          :columnTitle="column.title"
+          :isButton="column.isButton"
+          :tasks="column.tasks"
+          :columnIndex="index"
+          :columns="columns"
+          :moveTask="moveTask"
+          :moveTaskBack="moveTaskBack"
+          :removeTask="removeTask"
+        />
+      </div>
+          <button class="qwe" @click="clearStorage">Очистить данные</button>
     </div>
-  `
+    `
 });
