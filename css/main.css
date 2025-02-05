@@ -49,3 +49,15 @@ input, textarea {
     border: 1px solid #ddd;
     border-radius: 4px;
 }
+
+.completed-on-time{
+    background-color: #00bc1d;
+}
+
+.completed-late{
+    background-color: #e5052b;
+}
+
+.no-visible{
+    display: none;
+}
